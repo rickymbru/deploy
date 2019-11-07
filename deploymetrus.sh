@@ -16,7 +16,7 @@ export WL_HOME=$WLS_HOME
 export JAVA_HOME=/u01/middleware/jdk
 export PATH=$JAVA_HOME/bin:$PATH
 export URL=`grep ADMIN_URL $DOMAIN_HOME/bin/stopWebLogic.sh  | grep t3  | cut -d '=' -f2 | sed -e 's/"//g'`
-PID=/home/oracle/DeployMetrus.pid
+PID=/home/oracle/$APP.pid
 
 #verifica se o Deploy já está em andamento
 if [ -f "$PID" ]; then
