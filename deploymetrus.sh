@@ -2,8 +2,10 @@
 #Variaveis
 APP=metrus
 export DOMAIN_HOME=/u01/domains/metrus
+SCRIPT=$(readlink -f "$0")
+BASEDIR=$(dirname $SCRIPT)
 DEPLOY="/var/weblogic-external-data/$APP/deploy"
-CONTROl="/home/oracle/version$APP.txt"
+CONTROl=$BASEDIR/$APP.txt
 LOG=$DEPLOY"/log-"$APP".txt"
 MOUNT=/var/weblogic-external-data
 USERCONFIG='/home/oracle/oracle-WebLogicConfig.properties'
@@ -16,7 +18,7 @@ export WL_HOME=$WLS_HOME
 export JAVA_HOME=/u01/middleware/jdk
 export PATH=$JAVA_HOME/bin:$PATH
 export URL=`grep ADMIN_URL $DOMAIN_HOME/bin/stopWebLogic.sh  | grep t3  | cut -d '=' -f2 | sed -e 's/"//g'`
-PID=/home/oracle/$APP.pid
+PID=$BASEDIR/$APP.pid
 
 #verifica se o Deploy já está em andamento
 if [ -f "$PID" ]; then
