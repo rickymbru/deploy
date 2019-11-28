@@ -3,9 +3,9 @@
 APP=metrus
 export DOMAIN_HOME=/u01/domains/cedae
 SCRIPT=$(readlink -f "$0")
-BASEDIR=/home/oracle/deploy
+BASEDIR=$(dirname $(readlink -f $0))
 DEPLOY="/var/weblogic-external-data/$APP/deploy"
-CONTROl=$BASEDIR/$APP"_control.txt"
+CONTROL=$BASEDIR/$APP"_control.txt"
 LOG=$DEPLOY"/log-"$APP".txt"
 MOUNT=/var/weblogic-external-data
 USERCONFIG='/home/oracle/oracle-WebLogicConfig.properties'
@@ -58,12 +58,15 @@ fi
 NEWESTDATA=`date --reference "$NEWEST" +%Y%m%d%H%M%S`
 #echo NEWEST: $NEWESTDATA
 
-CONTROLDATA=`cat "$CONTROl"`
+if [ -f $CONTROL ]
+ then
+	CONTROLDATA=`cat "$CONTROL"`
+fi
 #echo CONTROL: $CONTROLDATA
 
 if [ "$NEWESTDATA" != "$CONTROLDATA" ]; then
 		if [[ "$NEWESTDATA" > "$CONTROLDATA" ]]; then
-			java -cp $CLASSPATH weblogic.Deployer -adminurl $URL -userconfigfile $USERCONFIG -userkeyfile $USERKEY -redeploy -name $APP -source $NEWEST -usenonexclusivelock >>$LOG && echo $NEWESTDATA > $CONTROl
+			java -cp $CLASSPATH weblogic.Deployer -adminurl $URL -userconfigfile $USERCONFIG -userkeyfile $USERKEY -redeploy -name $APP -source $NEWEST -usenonexclusivelock >>$LOG && echo $NEWESTDATA > $CONTROL
 			rm $NEWEST -rf
 		fi
 fi
