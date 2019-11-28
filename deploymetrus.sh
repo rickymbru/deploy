@@ -3,7 +3,7 @@
 APP=metrus
 export DOMAIN_HOME=/u01/domains/cedae
 SCRIPT=$(readlink -f "$0")
-BASEDIR=$(dirname $SCRIPT)
+BASEDIR=/home/oracle/deploy
 DEPLOY="/var/weblogic-external-data/$APP/deploy"
 CONTROl=$BASEDIR/$APP"_control.txt"
 LOG=$DEPLOY"/log-"$APP".txt"
@@ -41,10 +41,17 @@ for filename in $DEPLOY/*.ear; do
     fi
 done
 
+if [ -z $NEWEST ]
+    then
+		rm $PID	-rf 
+        exit 0
+fi
+
 #Validação do formato do arquivo ear, se possui $APP-versão
 if [[ ! $NEWEST =~ $APP ]]
 then
    "Arquivo ear fora do formato: "$APP"_versão"
+   rm $PID	-rf
    exit 1
 fi
 
@@ -56,13 +63,10 @@ CONTROLDATA=`cat "$CONTROl"`
 
 if [ "$NEWESTDATA" != "$CONTROLDATA" ]; then
 		if [[ "$NEWESTDATA" > "$CONTROLDATA" ]]; then
-			#echo "Fazendo o Redeploy..."
-			#echo $NEWEST
-   
 			java -cp $CLASSPATH weblogic.Deployer -adminurl $URL -userconfigfile $USERCONFIG -userkeyfile $USERKEY -redeploy -name $APP -source $NEWEST -usenonexclusivelock >>$LOG && echo $NEWESTDATA > $CONTROl
-   
+			rm $NEWEST -rf
 		fi
 fi
-rm $PID	   
+rm $PID	-rf   
 
 
