@@ -36,6 +36,7 @@ fi
 # Verifica se o /weblogic-external-data está montado.
 if ! mountpoint -q $MOUNT;
 then
+	rm $PID -rf
         exit 1
 fi
 
