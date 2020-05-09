@@ -1,11 +1,12 @@
 #!/bin/sh
 #Variaveis
-APP=metrus
+APP=src
 export DOMAIN_HOME=/u01/domains/cedae
 SCRIPT=$(readlink -f "$0")
-BASEDIR=/home/oracle/deploy
+BASEDIR=$(dirname $(readlink -f $0))
 DEPLOY="/var/weblogic-external-data/$APP/deploy"
-CONTROl=$BASEDIR/$APP"_control.txt"
+VERSIONDIR=$DEPLOY/versoes
+CONTROL=$BASEDIR/$APP"_control.txt"
 LOG=$DEPLOY"/log-"$APP".txt"
 MOUNT=/var/weblogic-external-data
 USERCONFIG='/home/oracle/oracle-WebLogicConfig.properties'
@@ -20,6 +21,11 @@ export PATH=$JAVA_HOME/bin:$PATH
 export URL=`grep ADMIN_URL $DOMAIN_HOME/bin/stopWebLogic.sh  | grep t3  | cut -d '=' -f2 | sed -e 's/"//g'`
 PID=$BASEDIR/$APP.pid
 
+# Cria o subdiretorio versoes caso não exista
+if [ ! -d $VERSIONDIR ] ;then
+	mkdir $VERSIONDIR
+fi	
+
 #verifica se o Deploy já está em andamento
 if [ -f "$PID" ]; then
         echo `date` - Deploy já em andamento, saindo... >>$LOG
@@ -30,6 +36,7 @@ fi
 # Verifica se o /weblogic-external-data está montado.
 if ! mountpoint -q $MOUNT;
 then
+	rm $PID -rf
         exit 1
 fi
 
@@ -41,6 +48,7 @@ for filename in $DEPLOY/*.ear; do
     fi
 done
 
+# Sai do programa caso não tenha arquivo ear
 if [ -z $NEWEST ]
     then
 		rm $PID	-rf 
@@ -56,15 +64,18 @@ then
 fi
 
 NEWESTDATA=`date --reference "$NEWEST" +%Y%m%d%H%M%S`
-#echo NEWEST: $NEWESTDATA
 
-CONTROLDATA=`cat "$CONTROl"`
-#echo CONTROL: $CONTROLDATA
+# Obtem a versão do ear armazenada
+if [ -f $CONTROL ]
+ then
+	CONTROLDATA=`cat "$CONTROL"`
+fi
 
+# Executa o Redeploy em caso de um ear mais atual
 if [ "$NEWESTDATA" != "$CONTROLDATA" ]; then
 		if [[ "$NEWESTDATA" > "$CONTROLDATA" ]]; then
-			java -cp $CLASSPATH weblogic.Deployer -adminurl $URL -userconfigfile $USERCONFIG -userkeyfile $USERKEY -redeploy -name $APP -source $NEWEST -usenonexclusivelock >>$LOG && echo $NEWESTDATA > $CONTROl
-			rm $NEWEST -rf
+			java -cp $CLASSPATH weblogic.Deployer -adminurl $URL -userconfigfile $USERCONFIG -userkeyfile $USERKEY -redeploy -name $APP -source $NEWEST -usenonexclusivelock >>$LOG && echo $NEWESTDATA > $CONTROL
+			mv $NEWEST $VERSIONDIR
 		fi
 fi
 rm $PID	-rf   
