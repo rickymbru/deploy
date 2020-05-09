@@ -37,14 +37,18 @@ def sendemail(from_addr, to_addr_list, cc_addr_list,
 
 def startweblogic():
     DOMAIN_HOME = os.environ.get('DOMAIN_HOME')
-    STARTWEBLOGIC='nohup '+ DOMAIN_HOME +'/bin/startWebLogic.sh &'
+    STARTWEBLOGIC='nohup '+ DOMAIN_HOME +'/bin/startWebLogic.sh > /dev/null 2>&1 &'
     os.system(STARTWEBLOGIC)
 
 def killweblogic(PORT):
-    COMMAND_PID='netstat -ltnp 2>/dev/null| grep -w '+ PORT +' | grep :1 | awk \'{print $7}\' | cut -d \'/\' -f 1'
-    PID = arch = subprocess.check_output(COMMAND_PID, shell=True);
-    COMMAND_KILL='kill -9 '+PID    
-    os.system(COMMAND_KILL)       
+    COMMAND_PID='netstat -ltnp 2>/dev/null| grep -w '+ PORT +' | awk \'{print $7}\' | cut -d \'/\' -f 1'
+    PROC = subprocess.Popen([COMMAND_PID], stdout=subprocess.PIPE, shell=True) 
+    OLDPID=""
+    for PID in PROC.stdout:
+        if OLDPID != PID:
+            COMMAND_KILL='kill -9 '+PID
+            os.system(COMMAND_KILL)
+        OLDPID = PID    
 
 def connect(WLST):
     criaconnect()    
