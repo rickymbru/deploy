@@ -28,7 +28,7 @@ fi
 
 #verifica se o Deploy já está em andamento
 if [ -f "$PID" ]; then
-        echo `date` - Deploy já em andamento, saindo... >>$LOG
+        # echo `date` - Deploy já em andamento, saindo... >>$LOG
         exit 1
 else touch $PID		
 fi
