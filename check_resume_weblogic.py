@@ -55,11 +55,11 @@ def connect(WLST):
     if os.system(WLST+' connect-default.py') == 0:
         message='Weblogic Connect !'
         print(message)
-        sendemail(from_addr    = 'fagundes@cedae.com.br', 
-          to_addr_list = ['ricky@cedae.com.br'],
-          cc_addr_list = [], 
-          subject      = message, 
-          message      = message)
+        # sendemail(from_addr    = 'fagundes@cedae.com.br', 
+        #   to_addr_list = ['ricky@cedae.com.br'],
+        #   cc_addr_list = [], 
+        #   subject      = message, 
+        #   message      = message)
     else:
         message='Weblogic not Connect ! Starting...'        
         print(message)

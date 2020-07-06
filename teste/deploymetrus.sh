@@ -1,7 +1,7 @@
 #!/bin/sh
 #Variaveis
 APP=metrus
-export DOMAIN_HOME=/u01/domains/cedae
+export DOMAIN_HOME=/u01/domains/metrus
 SCRIPT=$(readlink -f "$0")
 BASEDIR=$(dirname $(readlink -f $0))
 DEPLOY="/var/weblogic-external-data/$APP/deploy"
