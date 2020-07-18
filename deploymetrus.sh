@@ -44,7 +44,9 @@ fi
 unset NEWEST
 for filename in $DEPLOY/*.ear; do
     if [ -f "$filename" ] && [ "$filename" -nt "$NEWEST" ]; then
-        NEWEST=$filename
+        name="${filename##*/}"
+        mv $filename $DEPLOY/versoes
+        NEWEST=$DEPLOY/versoes/$name
     fi
 done
 
@@ -80,8 +82,15 @@ fi
 # Executa o Redeploy em caso de um ear mais atual
 if [ "$NEWESTDATA" != "$CONTROLDATA" ]; then
 		if [[ "$NEWESTDATA" > "$CONTROLDATA" ]]; then
+            md5=`md5sum ${NEWEST} | awk '{ print $1 }'`
+            echo "############      Inicio do deploy      ############">>$LOG
+            echo "Arquivo: "$name>>$LOG
+            echo "Hash Md5: "$md5>>$LOG
+            echo "">>$LOG
+            echo "Executando o deploy ...">>$LOG
+            echo "">>$LOG
 			java -cp $CLASSPATH weblogic.Deployer -adminurl $URL -userconfigfile $USERCONFIG -userkeyfile $USERKEY -redeploy -name $APP -source $NEWEST -usenonexclusivelock >>$LOG && echo $NEWESTDATA > $CONTROL
-			mv $NEWEST $VERSIONDIR
+			#mv $NEWEST $VERSIONDIR
 		fi
 fi
 rm $PID	-rf   

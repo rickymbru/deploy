@@ -1,0 +1,2 @@
+*/1 * * * * /home/oracle/deploy/deploymetrus.sh
+*/1 * * * * /home/oracle/deploy/deploysrc.sh
